@@ -28,12 +28,19 @@ std::string hasData(std::string s) {
   return "";
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   uWS::Hub h;
 
-  PID pid;
+  std::cout << argc <<std::endl;
+  bool twid = argc > 1;
+  PID pid(twid);
+
   // TODO: Initialize the pid variable.
+  if(twid)
+    pid.Init(0, 0, 0, 1, 0.1, 0.1);
+  else
+    pid.Init(0.0001, 0.0001, 0.0001, 1, 1, 1);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -50,23 +57,39 @@ int main()
           double cte = std::stod(j[1]["cte"].get<std::string>());
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
-          double steer_value;
-          /*
-          * TODO: Calcuate steering value here, remember the steering value is
-          * [-1, 1].
-          * NOTE: Feel free to play around with the throttle and speed. Maybe use
-          * another PID controller to control the speed!
-          */
-          
-          // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
-          json msgJson;
-          msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
-          auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
-          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+          bool reset = pid.UpdateError(cte);
+
+          if(reset)
+          {
+            //send reset message
+            std::string msg("42[\"reset\", {}]");
+            ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+          }
+          else
+          {
+            double steer_value = -pid.TotalError();
+            if(steer_value > 1.0)
+              steer_value = 1.0;
+            if(steer_value < -1.0)
+              steer_value = -1.0;
+            /*
+            * TODO: Calcuate steering value here, remember the steering value is
+            * [-1, 1].
+            * NOTE: Feel free to play around with the throttle and speed. Maybe use
+            * another PID controller to control the speed!
+            */
+            
+            // DEBUG
+            //std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+
+            json msgJson;
+            msgJson["steering_angle"] = steer_value;
+            msgJson["throttle"] = 0.3;
+            auto msg = "42[\"steer\"," + msgJson.dump() + "]";
+            //std::cout << msg << std::endl;
+            ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+          }
         }
       } else {
         // Manual driving
