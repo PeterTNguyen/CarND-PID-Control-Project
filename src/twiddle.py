@@ -180,3 +180,17 @@ fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
 ax1.plot(x_trajectory, y_trajectory, 'g', label='Twiddle PID controller')
 ax1.plot(x_trajectory, np.zeros(n), 'r', label='reference')
 
+
+K: 1.03993, 7.96871, 0.0145767, dp: 0.00721393, 0.0360697, 0.000216407
+Count: 1264/2500, Best Error: 104.259, Error: 104.277
+
+
+K: 1.04822, 7.96871, 0.0145767, dp: 0.00108277, 0.00541386, 3.24815e-05
+Count: 1457/2500, Best Error: 104.259, Error: 104.269
+
+
+Really Good!!!
+./pid .504822, 3.96871, 0.0075767
+
+EVEN BETTER
+0.199, 2.25395, 0.00771561,

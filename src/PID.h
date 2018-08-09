@@ -55,6 +55,8 @@ public:
   int state; // 0 p+=dp, 1 p-=2dp
   double best_err;
   void TwiddleUpdate();
+  void TwiddleTol();
+  int runs;
 };
 
 #endif /* PID_H */

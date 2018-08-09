@@ -33,15 +33,22 @@ int main(int argc, char* argv[])
   uWS::Hub h;
 
   std::cout << argc <<std::endl;
-  bool twid = argc > 1;
+  bool twid = argc == 2;
   PID pid(twid);
 
   // TODO: Initialize the pid variable.
   if(twid)
-    pid.Init(0, 0, 0, 1, 0.1, 0.1);
+    pid.Init(0, 0, 0, 0.1, 0.5, 0.001);
+    //pid.Init(1.63324, 7.15703, 0.00133708, 0.0497749, 0.184361, 0.00272593);
+  else if(argc == 4)
+  {
+    pid.Init(atof(argv[1]), atof(argv[2]), atof(argv[3]), 0, 0, 0);
+  }
+  //default parameters
   else
-    pid.Init(0.0001, 0.0001, 0.0001, 1, 1, 1);
-
+    pid.Init(0.199, 2.25395, 0.00771561, 1, 1, 1);
+    //pid.Init(1.13782, 10.6593,0.0179375, 1, 1, 1);
+  
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -115,7 +122,7 @@ int main(int argc, char* argv[])
   });
 
   h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
-    std::cout << "Connected!!!" << std::endl;
+    //std::cout << "Connected!!!" << std::endl;
   });
 
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
